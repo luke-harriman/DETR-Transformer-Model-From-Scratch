@@ -12,17 +12,19 @@ In an effort to better understand CNNs and Transformers, I am building the DETR 
 ## Python Scripts
 There are three main Python scripts, each representing different levels of abstraction when training neural networks:
 
-1. detr_scratch.py:
+### detr_scratch.py:
 
 Implements the DETR model from scratch using minimal abstractions from the PyTorch API.
 All matrix multiplications, linear/non-linear transformations, and CNN kernels are implemented using math and tensors.
 This script is an exercise to build intuition about the underlying operations, which is crucial for understanding and debugging neural networks.
 
-2. detr_pytorch.py:
+### detr_pytorch.py:
+
 Replaces many manual operations with higher-level abstractions from PyTorch's API.
 This level of abstraction is typical for building custom models in practice.
 
-3. detr_finetuned.py:
+### detr_finetuned.py:
+
 Removes the layer-defining code and fine-tunes an already trained DETR model.
 
 ## Results
