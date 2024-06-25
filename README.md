@@ -1,5 +1,9 @@
 # DETR Model from Scratch
-In an effort to better understand CNNs and Transformers, I am building the DETR model from scratch. This model has 141M parameters and can be trained on Google Colab.
+In an effort to better understand CNNs and Transformers, I am building the DETR model from scratch. This model has 141M parameters and can be trained on Google Colab. The code in the .py files will have far, far too many comments for any repo - and I like a lot of comments lol - but I made them mainly as my own note taking and references. 
+
+If I had more money I would get some GPU compute and try to reproduce the DETR paper; however, this is a very expensive, data hungry architecture as it uses transformers. Nonetheless, we were still able to train from scratch and get reasonable results. With more compute, I'd be able to set up many more tests to tweak the hyper parameters. 
+
+[GPU Poor Meme]
 
 ## Model Overview
 
