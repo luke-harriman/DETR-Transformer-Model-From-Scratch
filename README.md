@@ -22,13 +22,13 @@ This script is an exercise to build intuition about the underlying operations, w
 
 # Tuning Hyper parameters
 
-![Diagram](hyper_parameter_tuning_charts/v1/backbone_v1.png)
-![Diagram](hyper_parameter_tuning_charts/v1/decoder_block_ahead_key_v1.png)
-![Diagram](hyper_parameter_tuning_charts/v1/decoder_block_feedforward_v1.png)
-![Diagram](hyper_parameter_tuning_charts/v1/fnn_bbox_mlp_layer1_v1.png)
-![Diagram](hyper_parameter_tuning_charts/v1/fnn_classifier_mlp_layer1_v1.png)
-
-
+<p align="center">
+  <img src="hyper_parameter_tuning_charts/v1/backbone_v1.png" alt="Diagram" width="200"/>
+  <img src="hyper_parameter_tuning_charts/v1/decoder_block_ahead_key_v1.png" alt="Diagram" width="200"/>
+  <img src="hyper_parameter_tuning_charts/v1/decoder_block_feedforward_v1.png" alt="Diagram" width="200"/>
+  <img src="hyper_parameter_tuning_charts/v1/fnn_bbox_mlp_layer1_v1.png" alt="Diagram" width="200"/>
+  <img src="hyper_parameter_tuning_charts/v1/fnn_classifier_mlp_layer1_v1.png" alt="Diagram" width="200"/>
+</p>
 
 ## Results
 The results compare the training performance of the three approaches on the same dataset. This comparison is not definitive but provides insights into the differences between fine-tuning and implementing a model from scratch.
