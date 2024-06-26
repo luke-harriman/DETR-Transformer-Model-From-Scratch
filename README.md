@@ -23,8 +23,8 @@ This script is an exercise to build intuition about the underlying operations, w
 # Tuning Hyper parameters
 
 <p align="center">
-  <img src="hyper_parameter_tuning_charts/v1/backbone_v1.png" alt="Diagram" width="300"/>
-  <img src="hyper_parameter_tuning_charts/v1/fnn_bbox_mlp_layer1_v1.png" alt="Diagram" width="300"/>
+  <img src="hyper_parameter_tuning_charts/v1/backbone_v1.png" alt="Diagram" width="350"/>
+  <img src="hyper_parameter_tuning_charts/v1/fnn_bbox_mlp_layer1_v1.png" alt="Diagram" width="350"/>
 </p>
 
 ## Results
