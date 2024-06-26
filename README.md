@@ -32,8 +32,9 @@ Implements the DETR model from scratch using minimal abstractions from the PyTor
 All matrix multiplications, linear/non-linear transformations, and CNN kernels are implemented using math and tensors.
 This script is an exercise to build intuition about the underlying operations, which is crucial for understanding and debugging neural networks.
 
-## Tuning Hyper parameters
+## Training
 
+### Understanding Residual Layers
 <p align="center">
   <img src="charts/backbone_v1.png" alt="Diagram" width="350"/>
   <img src="charts/fnn_bbox_mlp_layer1_v1.png" alt="Diagram" width="350"/>
@@ -64,21 +65,36 @@ def forward(self, x):
 Therefore, the gradient doesn't vanish or explode as it's not reliant on any one neural network layer to properly process and distribute the gradient (i.e not one layer acts as the gate keeper to the initial gradient). Although we are using ReLu, which doesn't suffer from gradient vanishing or exploding as opposed to sigmoid and tanh, it's still good practice to dust off the ol' matplotlib code and see for yourself.
 
 <p align="center">
+  <img src="charts/std_gradients_30_batches.png" alt="Diagram" width="600"/>
+</p>
+
+So by initializaing the layer weights near 0, the gradient slowly 'turns these layers on' and adjusts the parameters of the model from the ground up as the gradient from the loss 'flows' straight to the first layer (i.e object queries and backbone). 
+
+<p align="center">
   <img src="charts/backbone_weights_30_batches.png" alt="Diagram" width="350"/>
   <img src="charts/encoder_key_30_batches.png" alt="Diagram" width="350"/>
   <img src="charts/encoder_query_30_batches.png" alt="Diagram" width="350"/>
   <img src="charts/encoder_value_30_batches.png" alt="Diagram" width="350"/>
 </p>
 
-So by initializaing the layer weights near 0, the gradient slowly 'turns these layers on' and adjusts the parameters of the model from the ground up as the gradient from the loss 'flows' straight to the first layer (i.e object queries and backbone). 
 
-[Weights sum over time]
+### Initialization
+1. Plot histogram of weights with frequency. Explain how pytorch initializes CNN and Linear layers and how it might be poor practice. 
+2. Do the same by initializing with He Initialization. Explain why the prior initialization is bad and the new one with He initialization is good.
+3. Run the model again looking at the new loss function over time. 
 
+### Hyper Parameters
+The ["End-to-End Object Detection with Transformers"](https://arxiv.org/abs/2005.12872) provides most of the hyper parameters used in the training of this neural network. For example, as illistrated in the paper,
+1. The final dimensionality of the channel features (d_model_embed) is 256 - condense from 2048 by the 1x1 Conv Layer. 
+2. The learning rate of the model is 1e-4.
+3. The number of object queries - number of predictions the model can make - is hardcoded as 100 (N=100).
 
 ## Results
 The results compare the training performance of the three approaches on the same dataset. This comparison is not definitive but provides insights into the differences between fine-tuning and implementing a model from scratch.
 
-[Results]
+<p align="center">
+  <img src="charts/loss_30_batches.png" alt="Diagram" width="600"/>
+</p>
 
 Feel free to explore the scripts and results to gain a deeper understanding of the DETR model and its implementation from scratch.
 
