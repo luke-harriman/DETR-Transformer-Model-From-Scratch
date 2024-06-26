@@ -78,7 +78,63 @@ class CocoDataset(torch.utils.data.Dataset):
 
         return img, target_class, target_bbox
 
+class CNN(torch.nn.Module):
+  def __init__(self):
+    super(CNN, self).__init__()
+    # The typical setting for the backbone CNN is C = 2048 and H,W = Hi/32, Wi/32
+    # Meaning the output has dimensions [2048, H/32, W/32].
+    # Add more sequential MaxPooling and CNN layers
 
+    self.conv1 = torch.nn.Conv2d(in_channels=3, out_channels=64, kernel_size=7, stride=2, padding=2)
+    self.relu1 = torch.nn.ReLU()
+    self.maxpool1 = torch.nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+
+    self.conv2 = torch.nn.Conv2d(in_channels=64, out_channels=512, kernel_size=7, stride=2, padding=2)
+    self.relu2 = torch.nn.ReLU()
+    self.maxpool2 = torch.nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+
+    self.conv3 = torch.nn.Conv2d(in_channels=512, out_channels=2048, kernel_size=7, stride=2, padding=2)
+    self.relu3 = torch.nn.ReLU()
+
+
+  def forward(self, x):
+    x = self.conv1(x)
+    x = self.relu1(x)
+    x = self.maxpool1(x)
+
+    x = self.conv2(x)
+    x = self.relu2(x)
+    x = self.maxpool2(x)
+
+    x = self.conv3(x)
+    x = self.relu3(x)
+    return x
+
+
+class PositionalEncoding(torch.nn.Module):
+    """
+    Generates positional encodings to represent the position of each feature (channel) in the image.
+    This is not for per-pixel positioning but for each feature learned by the CNN.
+    Uses trigonometric functions to create positional encodings.
+    """
+    def __init__(self, d_model, max_len):
+        super(PositionalEncoding, self).__init__()
+        self.encoding = torch.zeros(max_len, d_model)
+        self.encoding.requires_grad = False  # No gradients for positional encodings in the encoder. The object queries in the decoder
+
+        pos = torch.arange(0, max_len).unsqueeze(1).float()
+        _2i = torch.arange(0, d_model, 2).float()
+
+        # Using sin and cos functions to encode positions for even and odd indices
+        self.encoding[:, 0::2] = torch.sin(pos / (10000 ** (_2i / d_model)))
+        self.encoding[:, 1::2] = torch.cos(pos / (10000 ** (_2i / d_model)))
+
+    def forward(self, x):
+        batch_size, _, seq_len = x.size()
+
+        # Adjust encoding to match the input tensor dimensions
+        pos_encoding = torch.transpose(self.encoding[:seq_len, :].unsqueeze(0).repeat(batch_size, 1, 1), 1, 2).to(device)
+        return x + pos_encoding
 
 def create_linear_layers(n_embed, head_size):
     return torch.nn.ModuleDict({
@@ -243,49 +299,33 @@ class DecoderBlock(torch.nn.Module):
         return self.feed_forward_layer(x) + x
     
 
-def hungarian_loss(prediction, targets, batch_size, n_classes, n_predictions):
+def hungarian_loss(prediction, labels, batch_size, n_classes, n_predictions):
     losses = []
-
+    
     for b in range(batch_size):
-        target_classes = targets['class'][b].long()  # Convert to long (integer) tensor
-        target_bboxes = targets['bbox'][b]
-
-        # Ensure the number of predictions matches the number of targets
-        n_targets = len(target_classes)
-
-        # Compute cost matrix for class predictions
-        class_cost_matrix = torch.zeros((n_predictions, n_targets)).to(target_classes.device)
-        for x in range(n_predictions):
-            for i in range(n_targets):
-                class_cost_matrix[x, i] = torch.nn.functional.cross_entropy(
-                    prediction['class'][b][x].unsqueeze(0),
-                    target_classes[i].unsqueeze(0)
-                )
-
-        # Compute cost matrix for bounding box predictions
-        bbox_cost_matrix = torch.zeros((n_predictions, n_targets)).to(target_bboxes.device)
-        for x in range(n_predictions):
-            for i in range(n_targets):
-                bbox_cost_matrix[x, i] = torch.nn.functional.smooth_l1_loss(
-                    prediction['bbox'][b][x],
-                    target_bboxes[i],
-                    reduction='sum'
-                )
-
-        # Combine class and bounding box cost matrices
-        cost_matrix = class_cost_matrix + bbox_cost_matrix
-
-        # Solve the linear sum assignment problem (Hungarian algorithm)
-        row_ind, col_ind = linear_sum_assignment(cost_matrix.cpu().detach().numpy())
-
-        # Compute the final loss for this batch
-        batch_loss = 0
-        for r, c in zip(row_ind, col_ind):
-            batch_loss += class_cost_matrix[r, c] + bbox_cost_matrix[r, c]
+        image_class_label = labels['class'][b].float()
+        bbox_label = labels['bbox'][b]
         
-        losses.append(batch_loss / len(row_ind))  # Normalize by the number of assignments
+        for x in range(n_predictions):
+            image_class_prediction = prediction['class'][b][x]
+            bbox_prediction = prediction['bbox'][b][x]
+            
+            ce_loss_label = torch.nn.functional.cross_entropy(image_class_prediction.unsqueeze(0), image_class_label.unsqueeze(0))
+            ce_loss_bbox = torch.nn.functional.smooth_l1_loss(bbox_prediction, bbox_label, reduction='sum')
+            
+            total_loss = ce_loss_label + ce_loss_bbox
+            losses.append(total_loss)
 
-    return torch.stack(losses).mean()
+    # Stack the losses to form a tensor
+    losses_tensor = torch.stack(losses)
+    
+    # Find the index of the minimum loss
+    loss_index = torch.argmin(losses_tensor).item()
+    
+    # Select the minimum loss
+    minimum_loss = losses[loss_index]
+    
+    return minimum_loss
 
 class DETR(torch.nn.Module):
   def __init__(self, n_embed, n_aheads, head_size, projection_scale, d_model_embed, takes_encoder_input, N_bbox):

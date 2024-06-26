@@ -1,1 +1,0 @@
-# Load resnet-50 for the CNN backbone. 

@@ -13,23 +13,22 @@ If I had more money I would get some GPU compute and try to reproduce the DETR p
 4. Decoder: The decoder processes the input and passes it through a classifier layer to produce raw outputs.
 5. Loss Function: The final outputs are processed with a softmax function, and a minimum loss algorithm is applied to match predictions with labels. The loss function used is the negative log likelihood (Cross-entropy).
 
-## Python Scripts
+## Python Script: detr_scratch.py:
 There are three main Python scripts, each representing different levels of abstraction when training neural networks:
-
-### detr_scratch.py:
 
 Implements the DETR model from scratch using minimal abstractions from the PyTorch API.
 All matrix multiplications, linear/non-linear transformations, and CNN kernels are implemented using math and tensors.
 This script is an exercise to build intuition about the underlying operations, which is crucial for understanding and debugging neural networks.
 
-### detr_pytorch.py:
+# Tuning Hyper parameters
 
-Replaces many manual operations with higher-level abstractions from PyTorch's API.
-This level of abstraction is typical for building custom models in practice.
+![Diagram](hyper_parameter_tuning_charts/v1/backbone_v1.png)
+![Diagram](hyper_parameter_tuning_charts/v1/decoder_block_ahead_key_v1.png)
+![Diagram](hyper_parameter_tuning_charts/v1/decoder_block_feedforward_v1.png)
+![Diagram](hyper_parameter_tuning_charts/v1/fnn_bbox_mlp_layer1_v1.png)
+![Diagram](hyper_parameter_tuning_charts/v1/fnn_classifier_mlp_layer1_v1.png)
 
-### detr_finetuned.py:
 
-Removes the layer-defining code and fine-tunes an already trained DETR model.
 
 ## Results
 The results compare the training performance of the three approaches on the same dataset. This comparison is not definitive but provides insights into the differences between fine-tuning and implementing a model from scratch.
