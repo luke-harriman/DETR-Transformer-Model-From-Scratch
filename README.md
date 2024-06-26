@@ -41,9 +41,34 @@ This script is an exercise to build intuition about the underlying operations, w
 
 As you can see the from these two examples - see the v1 folder contains the weight distribution across more layers of the network - the distribution of weights at initialization are small and uniform landing between -0.02 and 0.02. The distribution is good for initial weights as they aren't too large that the first few training iterations are spent condensing the weights to an 'appropriate scale' and don't have a distribution far outside the appropriate mean of 0 and standard deviation of 1. 
 
-Initializing very small, uniform weights can be extremely effective for training reliability in shallow neural networks; however, as the depth of the network grows it's extremely hard to fight against exploding or vanishing gradients. One trick is to add residual layers that add to the layer outputs. The reason this works so well is the gradient computed from the loss distributes evenly through addition (i.e the same gradient goes through the residual connection and deep learning layers). Therefore, the gradient doesn't vanish or explode as it's not reliant on any one neural network layer to properly process and distribute the gradient (i.e not one layer acts as the gate keeper to the initial gradient). 
+Initializing very small, uniform weights can be extremely effective for training reliability in shallow neural networks; however, as the depth of the network grows it's extremely hard to fight against exploding or vanishing gradients. One trick is to add residual layers that add to the layer outputs. The reason this works so well is the gradient computed from the loss distributes evenly through addition (i.e the same gradient goes through the residual connection and deep learning layers). The code below shows how the outputs of each layer are added to x - and in the case of the decoder the initial output is added to randomly initialized object queries - to enable the gradient to 'flow' straight to the initial backbone:
 
-[Gradients over time]
+```python
+# Decoder block forward method
+def forward(self, encoder_input, object_queries):
+    x = object_queries + self.self_attention_decoder(object_queries, object_queries)
+    x = self.layer_norm(x)
+    x = x + self.self_attention_encoder(encoder_input, x)
+    x = self.layer_norm(x)
+    return x + self.feed_forward_layer(x)
+```
+
+```python
+# Encoder block forward method
+def forward(self, x):
+    x = x + self.self_attention(x)
+    x = x + self.feed_forward_layer(x)
+    return self.layer_norm(x)
+```
+
+Therefore, the gradient doesn't vanish or explode as it's not reliant on any one neural network layer to properly process and distribute the gradient (i.e not one layer acts as the gate keeper to the initial gradient). Although we are using ReLu, which doesn't suffer from gradient vanishing or exploding as opposed to sigmoid and tanh, it's still good practice to dust off the ol' matplotlib code and see for yourself.
+
+<p align="center">
+  <img src="charts/backbone_weights_30_batches.png" alt="Diagram" width="350"/>
+  <img src="charts/encoder_key_30_batches.png" alt="Diagram" width="350"/>
+  <img src="charts/encoder_query_30_batches.png" alt="Diagram" width="350"/>
+  <img src="charts/encoder_value_30_batches.png" alt="Diagram" width="350"/>
+</p>
 
 So by initializaing the layer weights near 0, the gradient slowly 'turns these layers on' and adjusts the parameters of the model from the ground up as the gradient from the loss 'flows' straight to the first layer (i.e object queries and backbone). 
 
