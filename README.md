@@ -1,31 +1,30 @@
 # DETR Model from Scratch: Table of Contents
 
-1. [Introdiction](#introduction)
+1. [Introduction](#introduction)
 2. [Model Overview](#model-overview)
-3. [Python Script Overview](#python-script)
-4. [Tuning Hyperparameters](#tuning-hyper-parameters)
+4. [Training](#training)
 5. [Results](#results)
 6. [Improvements](#improvements)
 
 ## Introduction
 I am building a DETR model - using the ["End-to-End Object Detection with Transformers"](https://arxiv.org/abs/2005.12872) research paper as a guide - from scratch to deepen my understanding of CNNs and Transformers. The transformer is built from scratch, while the CNN, Linear, and MLP layers are initialized using the PyTorch API.
 
-The model has 222M parameters, significantly more than the original DETR model with 141M parameters. This increase is due to the number of self-attention heads being raised from 8 to 11 and implementing the backbone instead of importing the ResNet-50 backbone.
+The model has 222M parameters, significantly more than the original DETR model with 141M parameters. This increase is due to the number of self-attention heads being increased from 8 to 11 and implementing the backbone instead of importing the ResNet-50 backbone.
 
-The Python scripts are heavily commented, serving as my notes and references. Due to not having enough money for GPUs, I couldn't use the same amount of compute to reproduce the DETR paper. However, I achieved my goals of understanding transformers, computer vision, model initialization and training stability - even with limited resources.
+The Python scripts are heavily commented, serving as my notes and references. Due to not having enough money for GPUs, I couldn't use the same amount of compute to reproduce the DETR paper. However, I achieved my goals of understanding transformers, computer vision, model initialization, and training stability - even with limited resources.
 
 ## Model Overview
 
-1. CNN: Starts with a CNN that outputs features of size (H, W).
-2. Positional Encodings: These features are combined with positional encodings and fed into the encoder.
-3. Encoder: Processes the features and passes them to the decoder.
-4. Decoder: Processes the input and passes it through a classifier layer to produce raw outputs.
-5. Loss Function: The final outputs are processed with a softmax function, and there are two loss functions used: negative log likelihood (cross entropy) for classes and hungarian loss for bounding box predictions.
+1. **CNN**: The model starts with a CNN that outputs features of size (H, W).
+2. **Positional Encodings**: These features are combined with positional encodings and fed into the encoder.
+3. **Encoder**: Processes the features and passes them to the decoder.
+4. **Decoder**: Processes the input and passes it through a classifier layer to produce raw outputs.
+5. **Loss Function**: The final outputs are processed with a softmax function, and two loss functions are used: negative log likelihood (cross-entropy) for classes and Hungarian loss for bounding box predictions.
 
 
 ## Training
 ### Understanding Residual Layers
-As the network depth increases, it becomes harder to fight against exploding or vanishing gradients. Exploding gradients occur when the gradients become excessively large, leading to unstable backpropogation. Vanishing gradients occur when the gradients become too small, preventing effective training. To combat these issues, we use residual layers that add the outputs of each layer to the inputs of subsequent layers. 
+As the network depth increases, it becomes harder to fight against exploding or vanishing gradients. Exploding gradients occur when the gradients become excessively large, leading to unstable backpropagation. Vanishing gradients occur when the gradients become too small, preventing effective training. To combat these issues, we use residual layers that add the outputs of each layer to the inputs of subsequent layers. 
 
 In the case of the decoder, the initial output is combined with randomly initialized object queries (N=100) to facilitate gradient flow. Adding residual layers ensures that the gradients can backpropagate through the network without relying on any single layer to distribute them effectively. Below are the forward methods for the decoder and encoder blocks, illustrating how I implemented the residual connections:
 
@@ -47,14 +46,14 @@ def forward(self, x):
     return self.layer_norm(x)
 ```
 
-Although I am using ReLu, which doesn't suffer from gradient vanishing or exploding as opposed to sigmoid and tanh, it's still good to dust off the ol' matplotlib skills and see the gradients for yourself.
+Although I am using ReLU, which doesn't suffer from gradient vanishing or exploding as opposed to sigmoid and tanh, it's still good to dust off the ol' matplotlib skills and see the gradients for yourself.
 
 <p align="center">
   <img src="charts/std_gradients_30_batches.png" alt="Diagram" width="600"/>
 </p>
 
 
-The charts below are a good illistration of why residual connections are so useful. As you can see in the top left chart, the backbone of the model is able to immediately start training as the gradient flows straight to it through the residual pathways. The self-attention layer - seen in the other three charts - take more time to 'turn on' as there weights are initially quite small.
+The charts below are a good illustration of why residual connections are so useful. As you can see in the top left chart, the backbone of the model is able to immediately start training as the gradient flows straight to it through the residual pathways. The self-attention layer - seen in the other three charts - take more time to 'turn on' as their weights are initially quite small.
 
 <p align="center">
   <img src="charts/backbone_weights_30_batches.png" alt="Diagram" width="350"/>
@@ -65,7 +64,7 @@ The charts below are a good illistration of why residual connections are so usef
 
 
 ### Initialization
-The initialization of weights in the self-attention layers is particularly important. In the DETR model, weights are multiplied by * self.head_size ** -0.5 to ensure they conform to a unit Gaussian distribution. This is necessary because the self-attention weights are passed into a softmax function, which raises each value to an exponential. If the weights are not properly initialized, the outputs after the softmax function can become one-hot vectors, making training difficult due to exploding or diminishing gradients. In addition, if the weights are too big or small the model spends the first few training cycles scaling or squeezing these weights into an appropriate distribution. 
+The initialization of weights in the self-attention layers is particularly important. In the DETR model, weights are multiplied by * self.head_size ** -0.5 to ensure they conform to a unit Gaussian distribution. This is necessary because the self-attention weights are passed into a softmax function, which raises each value to an exponential. If the weights are not properly initialized, the outputs after the softmax function can become one-hot vectors, making training difficult due to exploding or vanishing gradients. In addition, if the weights are too big or small the model spends the first few training cycles scaling or squeezing these weights into an appropriate distribution. 
 
 (Note: If you are interested in seeing more charts depicting the initialization of weights in different layers, see the charts folder.)
 
@@ -81,13 +80,13 @@ Here are some resources to investigate this further:
 
 ### Hyper Parameters
 The hyperparameters are based on the ["End-to-End Object Detection with Transformers"](https://arxiv.org/abs/2005.12872) paper:
-1. The final dimensionality of the channel features (d_model_embed) is 256 - condense from 2048 by the 1x1 Conv Layer. 
+1. The final dimensionality of the channel features (d_model_embed) is 256 - downscaled from 2048 by the 1x1 Conv Layer. 
 2. The learning rate of the model is 1e-4.
 3. The number of object queries - number of predictions the model can make - is hardcoded as 100 (N=100).
 
 
 ## Results
-The DETR model requires significanly more compute than I have to train effectively:
+The DETR model requires significantly more computational power than I currently have to train effectively:
 
 "Training the baseline model for 300 epochs on 16 V100 GPUs takes 3 days, with 4 images per GPU (hence a total batch size of 64)" 
 
@@ -100,10 +99,10 @@ While I couldn't match the paper's results, I achieved reasonable improvements i
 
 ## Improvements 
 1. More GPUs and training cycles:
-More computational power is needed to train the DETR model effectively. The original DETR paper mentions that training the baseline model for 300 epochs on 16 V100 GPUs takes 3 days. With more GPUs, I could run more extensive experiments, fine-tune hyperparameters, and reduce training time significantly. This would allow me to achieve better results and explore more complex variations of the model.
+More computational power is needed to train the DETR model effectively. The original DETR paper mentions that training the baseline model for 300 epochs on 16 V100 GPUs takes 3 days. With more GPUs, I could run more extensive experiments, fine-tune hyperparameters, and reduce training time significantly.
 
 2. Importing the ResNet-50 Backbone:
-The original DETR model - ["End-to-End Object Detection with Transformers"](https://arxiv.org/abs/2005.12872) - uses a pre-trained ResNet-50 backbone to extract features from images. By importing and leveraging a pre-trained backbone, I can benefit from the rich feature representations learned from large-scale datasets. This would improve the model's performance and reduce the computational burden of training the backbone from scratch. Additionally, it allows the DETR model to focus on learning the transformer-based object detection, rather than spending resources on learning basic image features.
+The original DETR model - ["End-to-End Object Detection with Transformers"](https://arxiv.org/abs/2005.12872) - uses a pre-trained ResNet-50 backbone to extract features from images. By importing and leveraging a pre-trained backbone, I can benefit from the rich feature representations learned from large-scale datasets. This would improve the model's performance and reduce the computational burden of training the backbone from scratch. Additionally, it would allow the DETR model to focus on learning the transformer-based object detection rather than spending resources on learning basic image features.
 
 3. More series about Validation and Testing:
-Due to the fact that the model wasn't able to train for long enough to be effective, there was no point getting serious about model validation and testing. However, if you wanted to build a model that works reliably in production it would be extremely important to iterate on the design using more rigorous validation and testing. For now, this was meerly a implementation exercise.
+Due to the fact that the model wasn't able to train for long enough to be effective, there was no point getting serious about model validation and testing. However, if you wanted to build a model that works reliably in production it would be extremely important to iterate on the design using more rigorous validation and testing. For now, this was merely a implementation exercise.
