@@ -53,7 +53,7 @@ Although I am using ReLU as the non-linear function, which doesn't suffer from g
 </p>
 
 
-The charts below are a good illustration of why residual connections are so useful. As you can see in the top left chart, the backbone of the model is able to immediately start training as the gradient flows straight to it through the residual pathways. The self-attention layer - seen in the other three charts - take more time to 'turn on' as their weights are initially quite small.
+The charts below are a good illustration of why residual connections are so useful. As you can see in the top left chart, the backbone of the model is able to immediately start training as the gradient flows straight to it through the residual pathways. The self-attention layer - seen in the other three charts - takes more time to 'turn on' as their weights are initially quite small.
 
 <p align="center">
   <img src="charts/backbone_weights_30_batches.png" alt="Diagram" width="350"/>
