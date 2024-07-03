@@ -15,11 +15,11 @@ The Python scripts are heavily commented, serving as my notes and references. Du
 
 ## Model Overview
 
-1. **CNN**: The model starts with a CNN that outputs features of size (H, W).
-2. **Positional Encodings**: These features are combined with positional encodings and fed into the encoder.
-3. **Encoder**: Processes the features and passes them to the decoder.
-4. **Decoder**: Processes the input and passes it through a classifier layer to produce raw outputs.
-5. **Loss Function**: The final outputs are processed with a softmax function, and two loss functions are used: negative log likelihood (cross-entropy) for classes and Hungarian loss for bounding box predictions.
+1. **CNN**: The model starts with a CNN that outputs image features of size (H, W).
+2. **Positional Encodings**: The ouputs from the CNN model are combined with positional encodings and fed into the encoder.
+3. **Encoder**: Processes the features with self-attention heads and passes them to the decoder.
+4. **Decoder**: Combines the object queries and encoder output with a self-attention layer before passing it to a classifier to create the logits.
+5. **Loss Function**: The logits are processed with a softmax layer, and two loss functions are used: negative log likelihood (cross-entropy) for classes and Hungarian loss for bounding box predictions.
 
 
 ## Training
