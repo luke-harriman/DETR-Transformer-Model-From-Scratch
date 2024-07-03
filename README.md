@@ -7,11 +7,11 @@
 6. [Improvements](#improvements)
 
 ## Introduction
-I am building a DETR model - using the ["End-to-End Object Detection with Transformers"](https://arxiv.org/abs/2005.12872) research paper as a guide - from scratch to deepen my understanding of CNNs and Transformers. The transformer is built from scratch, while the CNN, Linear, and MLP layers are initialized using the PyTorch API.
+I am building a DETR model to deepen my understanding of CNNs and Transformers - using the ["End-to-End Object Detection with Transformers"](https://arxiv.org/abs/2005.12872) research paper as a guide. The transformer is built from scratch, while the CNN, Linear, and MLP layers are initialized using the PyTorch API.
 
 The model has 222M parameters, significantly more than the original DETR model with 141M parameters. This increase is due to the number of self-attention heads being increased from 8 to 11 and implementing the backbone with PyTorch instead of importing the ResNet-50 backbone.
 
-The Python scripts are heavily commented, serving as my notes and references. Due to not having enough money for GPUs, I couldn't use the same amount of compute to reproduce the DETR paper. However, I achieved my goals of understanding transformers, computer vision, model initialization, and training stability - even with limited resources.
+The Python scripts are heavily commented, serving as my notes and references. Due to not having enough money for GPUs, I couldn't use the same amount of compute to reproduce the DETR paper. However, the goal of the exercise was to deepen my understanding of transformers/self-attention, computer vision, model initialization, and training stability.
 
 ## Model Overview
 
