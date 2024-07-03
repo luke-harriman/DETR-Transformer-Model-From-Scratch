@@ -104,5 +104,5 @@ More computational power is needed to train the DETR model effectively. The orig
 2. **Importing the ResNet-50 Backbone**:
 The original DETR model - ["End-to-End Object Detection with Transformers"](https://arxiv.org/abs/2005.12872) - uses a pre-trained ResNet-50 backbone to extract features from images. By importing and leveraging a pre-trained backbone, I can benefit from the rich feature representations learned from large-scale datasets. This would improve the model's performance and reduce the computational burden of training the backbone from scratch. Additionally, it would allow the DETR model to focus on learning the transformer-based object detection rather than spending resources on learning basic image features.
 
-3. **More series about Validation and Testing**:
+3. **Using more training cycles on testing and validation**:
 Due to the fact that the model wasn't able to train for long enough to be effective, there was no point getting serious about model validation and testing. However, if you wanted to build a model that works reliably in production it would be extremely important to iterate on the design using more rigorous validation and testing. For now, this was merely a implementation exercise.
