@@ -64,7 +64,7 @@ The charts below are a good illustration of why residual connections are so usef
 
 
 ### Initialization
-The initialization of weights in the self-attention layers are particularly important. In the DETR model, weights are multiplied by * self.head_size ** -0.5 to ensure they conform to a unit Gaussian distribution. This is necessary because the self-attention weights are passed into a softmax function, which raises each value to an exponential. If the weights are not properly initialized, the outputs after the softmax function can become one-hot vectors, making training difficult due to exploding or vanishing gradients. In addition, if the weights are too big or small the model spends the first few training cycles scaling or squeezing these weights into an appropriate distribution. 
+The initialization of weights in the self-attention layers are particularly important. In the DETR model, weights are multiplied by ``* self.head_size ** -0.5`` to ensure they conform to a unit Gaussian distribution. This is necessary because the self-attention weights are passed into a softmax function, which raises each value to an exponential. If the weights are not properly initialized, the outputs after the softmax function can become one-hot vectors, making training difficult due to exploding or vanishing gradients. In addition, if the weights are too big or small the model spends the first few training cycles scaling or squeezing these weights into an appropriate distribution. 
 
 (Note: If you are interested in seeing more charts depicting the initialization of weights in different layers, see the charts folder.)
 
