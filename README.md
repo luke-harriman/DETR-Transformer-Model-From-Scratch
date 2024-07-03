@@ -80,7 +80,7 @@ Here are some resources to investigate this further:
 
 ### Hyper Parameters
 The hyperparameters are based on the ["End-to-End Object Detection with Transformers"](https://arxiv.org/abs/2005.12872) paper:
-1. The final dimensionality of the channel features (d_model_embed) is 256 - downscaled from 2048 by the 1x1 Conv Layer. 
+1. The final dimensionality of the channel features (``d_model_embed``) is 256 - downscaled from 2048 by the 1x1 Conv Layer. 
 2. The learning rate of the model is 1e-4.
 3. The number of object queries - number of predictions the model can make - is hardcoded as 100 (N=100).
 
