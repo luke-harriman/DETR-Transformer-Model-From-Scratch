@@ -21,7 +21,9 @@ The Python scripts are heavily commented, serving as my notes and references. Du
 4. **Decoder**: Combines the object queries and encoder output with a self-attention layer before passing it to a classifier to create the logits.
 5. **Loss Function**: The logits are processed with a softmax layer, and two loss functions are used: negative log likelihood (cross-entropy) for classes and Hungarian loss for bounding box predictions.
 
-![Uploading Screenshot 2024-10-29 at 12.28.01 PM.png…]()
+<p align="center">
+  <img src="detr-model.png" alt="Diagram"/>
+</p>
 
 ## Training
 ### Understanding Residual Layers
