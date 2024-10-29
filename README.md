@@ -22,7 +22,7 @@ The Python scripts are heavily commented, serving as my notes and references. Du
 5. **Loss Function**: The logits are processed with a softmax layer, and two loss functions are used: negative log likelihood (cross-entropy) for classes and Hungarian loss for bounding box predictions.
 
 <p align="center">
-  <img src="detr-model.png" alt="Diagram"/>
+  <img src="charts/detr-model.png" alt="Diagram"/>
 </p>
 
 ## Training
